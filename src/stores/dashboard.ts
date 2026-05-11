@@ -20,7 +20,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   // ─── Derived ────────────────────────────────────────────────────────────────
 
   const latest = computed<DataTick | null>(() =>
-    history.value.length ? history.value[history.value.length - 1] : null
+    history.value.length > 0 ? history.value[history.value.length - 1]! : null
   )
 
   const windowedHistory = computed<DataTick[]>(() =>

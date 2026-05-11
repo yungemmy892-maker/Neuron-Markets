@@ -64,12 +64,12 @@ export function generateTick(prev: DataTick | null): DataTick {
   }
 
   const barData = ASSETS.map((asset) => ({
-    name: asset.split('/')[0],
+    name: asset.split('/')[0]!,
     volume: Math.floor(10_000 + Math.random() * 50_000),
     trades: Math.floor(200 + Math.random() * 800),
   }))
 
-  const [msg, sev] = LOG_MSGS[Math.floor(Math.random() * LOG_MSGS.length)]
+  const [msg, sev] = LOG_MSGS[Math.floor(Math.random() * LOG_MSGS.length)]!
 
   return {
     ts,
