@@ -138,4 +138,32 @@ const TIME_WINDOWS = [15, 30, 60] as const
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
 }
+
+/* Mobile styles */
+@media (max-width: 640px) {
+  .app-header {
+    padding: 0 12px;
+    height: 50px;
+  }
+  .header-left {
+    gap: 8px;
+  }
+  .header-right {
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+  .pill-btn {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+  .brand {
+    font-size: 14px;
+  }
+  .brand-sub {
+    font-size: 12px;
+  }
+  .status-label {
+    font-size: 10px;
+  }
+}
 </style>
