@@ -1,8 +1,18 @@
-import type { DataTick, PriceMap, SeverityLevel } from '@/types'
+import type { DataTick, PriceMap, SeverityLevel, LiquidityPool, PoolPair } from '@/types'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 export const ASSETS = ['BTC/USD', 'ETH/USD', 'SOL/USD', 'MATIC/USD', 'ARB/USD'] as const
+
+export const POOLS = ['BTC/USDT', 'ETH/USDT', 'SOL/USDT', 'ARB/ETH', 'MATIC/USDT'] as const
+
+export const BASE_POOLS: Record<PoolPair, { tvl: number; apy: number; volume24h: number; fee: number; utilization: number }> = {
+  'BTC/USDT':   { tvl: 42_500_000, apy: 6.2,  volume24h: 18_400_000, fee: 0.30, utilization: 61 },
+  'ETH/USDT':   { tvl: 31_800_000, apy: 8.4,  volume24h: 15_100_000, fee: 0.30, utilization: 68 },
+  'SOL/USDT':   { tvl: 14_200_000, apy: 11.7, volume24h: 9_200_000,  fee: 0.25, utilization: 74 },
+  'ARB/ETH':    { tvl: 6_900_000,  apy: 14.3, volume24h: 3_100_000,  fee: 0.30, utilization: 55 },
+  'MATIC/USDT': { tvl: 4_100_000,  apy: 9.8,  volume24h: 1_800_000,  fee: 0.25, utilization: 47 },
+}
 
 export const BASE_PRICES: PriceMap = {
   'BTC/USD': 67420,
@@ -71,6 +81,21 @@ export function generateTick(prev: DataTick | null): DataTick {
 
   const [msg, sev] = LOG_MSGS[Math.floor(Math.random() * LOG_MSGS.length)]!
 
+  const pools: LiquidityPool[] = POOLS.map((id) => {
+    const base = prev?.pools?.find((p) => p.id === id) ?? { id, ...BASE_POOLS[id] }
+    const tvlDrift = (Math.random() - 0.5) * base.tvl * 0.004
+    const apyDrift = (Math.random() - 0.5) * 0.15
+    const utilDrift = (Math.random() - 0.5) * 1.5
+    return {
+      id,
+      tvl: Math.max(base.tvl * 0.5, base.tvl + tvlDrift),
+      apy: Math.max(0.5, base.apy + apyDrift),
+      volume24h: Math.max(0, BASE_POOLS[id].volume24h + (Math.random() - 0.5) * BASE_POOLS[id].volume24h * 0.05),
+      fee: BASE_POOLS[id].fee,
+      utilization: Math.min(98, Math.max(10, base.utilization + utilDrift)),
+    }
+  })
+
   return {
     ts,
     prices,
@@ -83,6 +108,7 @@ export function generateTick(prev: DataTick | null): DataTick {
       sev,
       ts,
     },
+    pools,
   }
 }
 

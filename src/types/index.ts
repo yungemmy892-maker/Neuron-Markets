@@ -43,6 +43,7 @@ export interface DataTick {
   metrics: SystemMetrics
   barData: BarDataPoint[]
   log: LogEntry
+  pools: LiquidityPool[]
 }
 
 // ─── Chart Data Shapes ───────────────────────────────────────────────────────
@@ -63,8 +64,21 @@ export interface MetricsChartPoint {
   errorRate: number
 }
 
+// ─── Liquidity Pools ─────────────────────────────────────────────────────────
+
+export type PoolPair = 'BTC/USDT' | 'ETH/USDT' | 'SOL/USDT' | 'ARB/ETH' | 'MATIC/USDT'
+
+export interface LiquidityPool {
+  id: PoolPair
+  tvl: number
+  apy: number
+  volume24h: number
+  fee: number
+  utilization: number // 0-100
+}
+
 // ─── UI State ────────────────────────────────────────────────────────────────
 
-export type TabName = 'overview' | 'assets' | 'system' | 'feed'
+export type TabName = 'overview' | 'assets' | 'liquidity' | 'system' | 'feed'
 export type TimeWindow = 15 | 30 | 60
 export type FeedFilter = 'all' | 'critical' | 'warn' | 'info'

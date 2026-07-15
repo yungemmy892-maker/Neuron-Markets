@@ -2,12 +2,13 @@
   <nav class="nav-tabs">
     <button
       v-for="tab in TABS"
-      :key="tab"
+      :key="tab.name"
       class="tab-btn"
-      :class="{ active: modelValue === tab }"
-      @click="$emit('update:modelValue', tab)"
+      :class="{ active: modelValue === tab.name }"
+      @click="$emit('update:modelValue', tab.name)"
     >
-      {{ tab }}
+      <span class="tab-icon">{{ tab.icon }}</span>
+      {{ tab.name }}
     </button>
   </nav>
 </template>
@@ -19,7 +20,13 @@ import { theme } from '@/utils/theme'
 defineProps<{ modelValue: TabName }>()
 defineEmits<{ 'update:modelValue': [tab: TabName] }>()
 
-const TABS: TabName[] = ['overview', 'assets', 'system', 'feed']
+const TABS: { name: TabName; icon: string }[] = [
+  { name: 'overview', icon: '◱' },
+  { name: 'assets', icon: '◎' },
+  { name: 'liquidity', icon: '⬡' },
+  { name: 'system', icon: '▤' },
+  { name: 'feed', icon: '☰' },
+]
 </script>
 
 <style scoped>
@@ -28,8 +35,12 @@ const TABS: TabName[] = ['overview', 'assets', 'system', 'feed']
   gap: 4px;
   border-bottom: 1px solid v-bind('theme.border');
   margin-bottom: 20px;
+  overflow-x: auto;
 }
 .tab-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
@@ -42,6 +53,10 @@ const TABS: TabName[] = ['overview', 'assets', 'system', 'feed']
   text-transform: uppercase;
   transition: all 0.15s;
   margin-bottom: -1px;
+  white-space: nowrap;
+}
+.tab-icon {
+  font-size: 13px;
 }
 .tab-btn:hover {
   background: rgba(255,255,255,0.04);

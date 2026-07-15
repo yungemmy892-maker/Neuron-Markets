@@ -38,6 +38,16 @@ export const assetShortColors: Record<string, string> = {
   ARB: '#4f9eff',
 }
 
+// ─── Liquidity Pool Colors ─────────────────────────────────────────────────────
+
+export const poolColors: Record<string, string> = {
+  'BTC/USDT': '#f7931a',
+  'ETH/USDT': '#a78bfa',
+  'SOL/USDT': '#00e5a0',
+  'ARB/ETH': '#4f9eff',
+  'MATIC/USDT': '#8247e5',
+}
+
 // ─── Severity Config ──────────────────────────────────────────────────────────
 
 export const severityConfig = {

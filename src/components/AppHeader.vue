@@ -1,9 +1,11 @@
 <template>
   <header class="app-header">
     <div class="header-left">
-      <div class="logo-icon">⚡</div>
-      <span class="brand">NEURON</span>
-      <span class="brand-sub">/ MARKETS</span>
+      <RouterLink to="/" class="brand-link" aria-label="Back to home">
+        <div class="logo-icon">⚡</div>
+        <span class="brand">NEURON</span>
+        <span class="brand-sub">/ MARKETS</span>
+      </RouterLink>
       <div class="status-dot" :class="{ paused: store.paused }" />
       <span class="status-label" :style="{ color: store.paused ? theme.yellow : theme.green }">
         {{ store.paused ? 'PAUSED' : 'LIVE' }}
@@ -28,6 +30,10 @@
       >
         {{ store.paused ? '▶ RESUME' : '⏸ PAUSE' }}
       </button>
+
+      <button class="icon-btn" title="Replay guided tour" aria-label="Replay guided tour" @click="$emit('restart-tour')">
+        ?
+      </button>
     </div>
   </header>
 </template>
@@ -35,6 +41,8 @@
 <script setup lang="ts">
 import { useDashboardStore } from '@/stores/dashboard'
 import { theme } from '@/utils/theme'
+
+defineEmits<{ 'restart-tour': [] }>()
 
 const store = useDashboardStore()
 const TIME_WINDOWS = [15, 30, 60] as const
@@ -58,6 +66,12 @@ const TIME_WINDOWS = [15, 30, 60] as const
   display: flex;
   align-items: center;
   gap: 12px;
+}
+.brand-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
 }
 .logo-icon {
   width: 28px;
@@ -133,6 +147,26 @@ const TIME_WINDOWS = [15, 30, 60] as const
   background: rgba(255, 68, 102, 0.1) !important;
   border-color: v-bind('theme.red') !important;
   color: v-bind('theme.red') !important;
+}
+.icon-btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid v-bind('theme.border');
+  background: transparent;
+  color: v-bind('theme.textMuted');
+  font-family: 'Space Mono', monospace;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.icon-btn:hover {
+  border-color: v-bind('theme.accent');
+  color: v-bind('theme.accent');
+  background: v-bind('theme.accentGlow');
 }
 @keyframes pulse {
   0%, 100% { opacity: 1; }

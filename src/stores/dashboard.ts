@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { DataTick, LogEntry, PriceChartPoint, MetricsChartPoint, TimeWindow } from '@/types'
-import { generateTick, seedHistory, ASSETS } from '@/utils/dataGenerator'
+import type { DataTick, LogEntry, PriceChartPoint, MetricsChartPoint, TimeWindow, PoolPair } from '@/types'
+import { generateTick, seedHistory, ASSETS, POOLS } from '@/utils/dataGenerator'
 
 const STREAM_INTERVAL_MS = 800
 const MAX_LOGS = 100
@@ -14,6 +14,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const paused = ref(false)
   const timeWindow = ref<TimeWindow>(60)
   const selectedAsset = ref('BTC/USD')
+  const selectedPool = ref<PoolPair>('BTC/USDT')
 
   let intervalId: ReturnType<typeof setInterval> | null = null
 
@@ -61,6 +62,36 @@ export const useDashboardStore = defineStore('dashboard', () => {
   /** Short key for selected asset (e.g. "BTC") */
   const selectedAssetKey = computed(() => selectedAsset.value.split('/')[0])
 
+  /** Latest pools snapshot */
+  const poolsData = computed(() => latest.value?.pools ?? [])
+
+  /** Currently selected pool's latest data */
+  const selectedPoolData = computed(() =>
+    poolsData.value.find((p) => p.id === selectedPool.value) ?? null
+  )
+
+  /** TVL history for the selected pool, across the current time window */
+  const selectedPoolTvlHistory = computed(() =>
+    windowedHistory.value.map((t) => ({
+      ts: t.ts,
+      tvl: t.pools.find((p) => p.id === selectedPool.value)?.tvl ?? 0,
+    }))
+  )
+
+  /** TVL delta % for selected pool (last 2 ticks) */
+  const selectedPoolDelta = computed<number>(() => {
+    const h = history.value
+    if (h.length < 2) return 0
+    const prev = h[h.length - 2]?.pools.find((p) => p.id === selectedPool.value)?.tvl ?? 0
+    const curr = h[h.length - 1]?.pools.find((p) => p.id === selectedPool.value)?.tvl ?? 0
+    return prev === 0 ? 0 : ((curr - prev) / prev) * 100
+  })
+
+  /** Combined TVL across all pools (protocol total) */
+  const totalTvl = computed(() =>
+    poolsData.value.reduce((sum, p) => sum + p.tvl, 0)
+  )
+
   /** Latest price for the selected asset */
   const selectedAssetPrice = computed(() =>
     latest.value?.prices[selectedAsset.value as keyof typeof latest.value.prices] ?? 0
@@ -98,6 +129,10 @@ export const useDashboardStore = defineStore('dashboard', () => {
     selectedAsset.value = asset
   }
 
+  function setSelectedPool(pool: PoolPair) {
+    selectedPool.value = pool
+  }
+
   return {
     // state
     history,
@@ -105,6 +140,7 @@ export const useDashboardStore = defineStore('dashboard', () => {
     paused,
     timeWindow,
     selectedAsset,
+    selectedPool,
     // derived
     latest,
     windowedHistory,
@@ -113,12 +149,19 @@ export const useDashboardStore = defineStore('dashboard', () => {
     selectedAssetDelta,
     selectedAssetKey,
     selectedAssetPrice,
+    poolsData,
+    selectedPoolData,
+    selectedPoolTvlHistory,
+    selectedPoolDelta,
+    totalTvl,
     // actions
     startStream,
     stopStream,
     togglePause,
     setTimeWindow,
     setSelectedAsset,
+    setSelectedPool,
     ASSETS,
+    POOLS,
   }
 })

@@ -253,6 +253,68 @@ export function useMetricAreaOptions(
   })
 }
 
+// ─── Generic Area Chart (e.g. Pool TVL) ───────────────────────────────────────
+
+export function useGenericAreaOptions(
+  points: ComputedRef<{ ts: string; value: number }[]>,
+  color: ComputedRef<string> | string,
+  valueFormatter?: (v: number) => string
+) {
+  return computed(() => {
+    const c = typeof color === 'string' ? color : color.value
+    if (!points.value || points.value.length === 0) {
+      return { series: [], xAxis: { type: 'category' as const, data: [] }, yAxis: { type: 'value' as const } }
+    }
+    const xs = points.value.map((d) => d.ts)
+    const ys = points.value.map((d) => d.value)
+    const fmt = valueFormatter ?? ((v: number) => v.toLocaleString(undefined, { maximumFractionDigits: 0 }))
+
+    return {
+      backgroundColor: 'transparent',
+      animation: false,
+      grid: GRID,
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: theme.bgCard,
+        borderColor: theme.borderGlow,
+        textStyle: { color: theme.text, fontSize: 11, fontFamily: "'Space Mono', monospace" },
+        formatter: (params: any[]) => {
+          const p = params[0]
+          return `<div style="color:${theme.textMuted};margin-bottom:4px">${p.axisValue}</div>
+                  <div style="color:${c}"><b>${fmt(Number(p.value))}</b></div>`
+        },
+      },
+      ...baseAxis(xs),
+      yAxis: {
+        ...baseAxis(xs).yAxis,
+        axisLabel: {
+          ...baseAxis(xs).yAxis.axisLabel,
+          formatter: (v: number) => fmt(v),
+        },
+      },
+      series: [
+        {
+          type: 'line',
+          data: ys,
+          smooth: true,
+          symbol: 'none',
+          lineStyle: { color: c, width: 2 },
+          areaStyle: {
+            color: {
+              type: 'linear',
+              x: 0, y: 0, x2: 0, y2: 1,
+              colorStops: [
+                { offset: 0, color: c + '55' },
+                { offset: 1, color: c + '00' },
+              ],
+            },
+          },
+        },
+      ],
+    }
+  })
+}
+
 // ─── Mini Sparkline ───────────────────────────────────────────────────────────
 
 export function useSparklineOptions(values: ComputedRef<number[]>, color: string) {
